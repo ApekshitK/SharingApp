@@ -17,10 +17,10 @@ import java.util.ArrayList;
 /**
  * ItemList class
  */
-public class ItemList {
+public class ItemList extends Observable{
 
     private static ArrayList<Item> items;
-    private String FILENAME = "item_file.sav";
+    private String FILENAME = "items.sav";
 
     public ItemList() {
         items = new ArrayList<Item>();
@@ -28,6 +28,7 @@ public class ItemList {
 
     public void setItems(ArrayList<Item> item_list) {
         items = item_list;
+        notifyObservers();
     }
 
     public ArrayList<Item> getItems() {
@@ -36,23 +37,16 @@ public class ItemList {
 
     public void addItem(Item item) {
         items.add(item);
+        notifyObservers();
     }
 
     public void deleteItem(Item item) {
         items.remove(item);
+        notifyObservers();
     }
 
     public Item getItem(int index) {
         return items.get(index);
-    }
-
-    public boolean hasItem(Item item) {
-        for (Item i : items) {
-            if (item.getId().equals(i.getId())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public int getIndex(Item item) {
@@ -85,6 +79,7 @@ public class ItemList {
         } catch (IOException e) {
             items = new ArrayList<Item>();
         }
+        notifyObservers();
     }
 
     public boolean saveItems(Context context) {
@@ -104,7 +99,6 @@ public class ItemList {
         }
         return true;
     }
-
 
     public ArrayList<User> getActiveBorrowers() {
 
@@ -127,8 +121,4 @@ public class ItemList {
         }
         return selected_items;
     }
-
 }
-
-
-

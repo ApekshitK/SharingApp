@@ -12,6 +12,7 @@ import android.widget.EditText;
 public class AddUserActivity extends AppCompatActivity {
 
     private UserList user_list = new UserList();
+    private UserListController userListController = new UserListController(user_list);
     private Context context;
 
     private EditText username;
@@ -26,7 +27,7 @@ public class AddUserActivity extends AppCompatActivity {
         email = (EditText) findViewById(R.id.email);
 
         context = getApplicationContext();
-        user_list.loadUsers(context);
+        userListController.loadUsers(context);
     }
 
     public void saveUser(View view) {
@@ -49,17 +50,14 @@ public class AddUserActivity extends AppCompatActivity {
             return;
         }
 
-        if (!user_list.isUsernameAvailable(username_str)){
+        if (!userListController.isUsernameAvailable(username_str)){
             username.setError("Username already taken!");
             return;
         }
 
         User user = new User(username_str, email_str, null);
 
-        AddUserCommand addUserCommand = new AddUserCommand(user_list, user, context);
-        addUserCommand.execute();
-
-        boolean success = addUserCommand.isExecuted();
+        boolean success = userListController.addUser(user, context);
         if (!success){
             return;
         }

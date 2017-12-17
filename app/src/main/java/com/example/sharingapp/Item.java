@@ -10,7 +10,7 @@ import java.util.UUID;
 /**
  * Item class
  */
-public class Item {
+public class Item extends Observable {
 
     private String title;
     private String maker;
@@ -18,16 +18,15 @@ public class Item {
     private Dimensions dimensions;
     private String status;
     private User borrower;
-    protected transient Bitmap image; // Must be transient or app crashes...
-    // https://forum.xda-developers.com/android/help/help-android-native-crash-debugging-t3477559
+    protected transient Bitmap image;
     protected String image_base64;
     private String id;
 
-    public Item(String title, String maker, String description, Bitmap image,
-                String id) {
+    public Item(String title, String maker, String description, Bitmap image, String id) {
         this.title = title;
         this.maker = maker;
         this.description = description;
+        this.dimensions = null;
         this.status = "Available";
         this.borrower = null;
         addImage(image);
@@ -39,8 +38,50 @@ public class Item {
         }
     }
 
+    public String getId(){
+        return this.id;
+    }
+
+    public void setId() {
+        this.id = UUID.randomUUID().toString();
+        notifyObservers();
+    }
+
+    public void updateId(String id){
+        this.id = id;
+        notifyObservers();
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+        notifyObservers();
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setMaker(String maker) {
+        this.maker = maker;
+        notifyObservers();
+    }
+
+    public String getMaker() {
+        return maker;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+        notifyObservers();
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public void setDimensions(String length, String width, String height) {
         this.dimensions = new Dimensions(length, width, height);
+        notifyObservers();
     }
 
     public String getLength(){
@@ -55,52 +96,9 @@ public class Item {
         return dimensions.getHeight();
     }
 
-    public String getId(){
-        return this.id;
-    }
-
-    public void setId() {
-        this.id = UUID.randomUUID().toString();
-    }
-
-    public void updateId(String id){
-        this.id = id;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setMaker(String maker) {
-        this.maker = maker;
-    }
-
-    public String getMaker() {
-        return maker;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDimensions(Dimensions dimensions) {
-        this.dimensions = dimensions;
-    }
-
-    public Dimensions getDimensions() {
-        return dimensions;
-    }
-
     public void setStatus(String status) {
         this.status = status;
+        notifyObservers();
     }
 
     public String getStatus() {
@@ -109,6 +107,7 @@ public class Item {
 
     public void setBorrower(User borrower) {
         this.borrower = borrower;
+        notifyObservers();
     }
 
     public User getBorrower() {
@@ -120,17 +119,19 @@ public class Item {
             image = new_image;
             ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
             new_image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayBitmapStream);
+
             byte[] b = byteArrayBitmapStream.toByteArray();
             image_base64 = Base64.encodeToString(b, Base64.DEFAULT);
         }
+        notifyObservers();
     }
 
     public Bitmap getImage(){
         if (image == null && image_base64 != null) {
             byte[] decodeString = Base64.decode(image_base64, Base64.DEFAULT);
             image = BitmapFactory.decodeByteArray(decodeString, 0, decodeString.length);
+            notifyObservers();
         }
         return image;
     }
 }
-

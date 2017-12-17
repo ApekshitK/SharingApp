@@ -15,6 +15,7 @@ import android.widget.EditText;
 public class EditUserActivity extends AppCompatActivity {
 
     private UserList user_list = new UserList();
+    private UserListController userListController = new UserListController(user_list);
     private User user;
     private EditText email;
     private EditText username;
@@ -26,12 +27,12 @@ public class EditUserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_user);
 
         context = getApplicationContext();
-        user_list.loadUsers(context);
+        userListController.loadUsers(context);
 
         Intent intent = getIntent();
         int pos = intent.getIntExtra("position", 0);
 
-        user = user_list.getUser(pos);
+        user = userListController.getUser(pos);
 
         username = (EditText) findViewById(R.id.username);
         email = (EditText) findViewById(R.id.email);
@@ -59,17 +60,14 @@ public class EditUserActivity extends AppCompatActivity {
 
         // Check that username is unique AND username is changed (Note: if username was not changed
         // then this should be fine, because it was already unique.)
-        if (!user_list.isUsernameAvailable(username_str) && !(user.getUsername().equals(username_str))) {
+        if (!userListController.isUsernameAvailable(username_str) && !(user.getUsername().equals(username_str))) {
             username.setError("Username already taken!");
             return;
         }
 
         User updated_user = new User(username_str, email_str, id);
 
-        EditUserCommand editUserCommand = new EditUserCommand(user_list, user, updated_user, context);
-        editUserCommand.execute();
-
-        boolean success = editUserCommand.isExecuted();
+        boolean success = userListController.editUser(user, updated_user, context);
         if (!success){
             return;
         }
@@ -80,15 +78,12 @@ public class EditUserActivity extends AppCompatActivity {
 
     public void deleteUser(View view) {
 
-        DeleteUserCommand deleteUserCommand = new DeleteUserCommand(user_list, user, context);
-        deleteUserCommand.execute();
+        UserListController userListController = new UserListController(user_list);
+        boolean success = userListController.deleteUser(user, context);
 
-        boolean success = deleteUserCommand.isExecuted();
-
-        if(!success) {
+        if (!success) {
             return;
         }
-
         // End EditUserActivity
         finish();
     }
